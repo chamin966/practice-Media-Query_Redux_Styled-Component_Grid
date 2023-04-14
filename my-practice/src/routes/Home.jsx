@@ -1,4 +1,8 @@
+import { useState } from 'react';
+import { connect } from 'react-redux';
 import styled from 'styled-components';
+import { add } from '../store';
+import ToDo from '../components/ToDo';
 
 /*
 styled-component 사용 시 주의사항!
@@ -30,13 +34,39 @@ const GridContainer = styled.div`
   }
 `;
 
-function App() {
+const TodoListInputBox = styled.div`
+  display: flex;
+  gap: 10px;
+  margin-bottom: 30px;
+`;
+
+function Home({ toDolist, addTodo }) {
+  const [text, setText] = useState('');
+
+  const onChangeText = (e) => {
+    setText(e.target.value);
+  };
+
+  const onSubmitText = (e) => {
+    e.preventDefault();
+    addTodo(text);
+    setText('');
+  };
+
   return (
     <div>
-      <div>Hello!</div>
-      <StyledButton>버튼</StyledButton>
-      <LargeButton>라지버튼</LargeButton>
-      <LargeButton primary={true}>라지버튼</LargeButton>
+      <h1>Todo-List</h1>
+      <TodoListInputBox>
+        <input type='text' value={text} onChange={onChangeText} />
+        <form onSubmit={onSubmitText}>
+          <button>추가</button>
+        </form>
+      </TodoListInputBox>
+      <ul>
+        {toDolist.map((v, i) => (
+          <ToDo key={i} text={v.text} id={v.id} />
+        ))}
+      </ul>
       <GridContainer>
         <div>
           <ul>
@@ -58,8 +88,19 @@ function App() {
           </p>
         </div>
       </GridContainer>
+      <StyledButton>버튼</StyledButton>
+      <LargeButton>라지버튼</LargeButton>
+      <LargeButton primary={true}>라지버튼</LargeButton>
     </div>
   );
 }
 
-export default App;
+const mapStateToProps = (state, ownProps) => {
+  return { toDolist: state };
+};
+
+const mapDispatchToProps = (dispatch, ownProps) => {
+  return { addTodo: (v) => dispatch(add(v)) };
+};
+
+export default connect(mapStateToProps, mapDispatchToProps)(Home);
